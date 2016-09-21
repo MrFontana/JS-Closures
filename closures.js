@@ -2,11 +2,11 @@
 	#PROBLEM-01
 \******************************************************************************/
 
-var outer = function(){
-  var name = 'Tyler';
-  return function(){
-    return 'The original name was ' + name;
-  }
+var outer = function() {
+    var name = 'Tyler';
+    return function() {
+        return 'The original name was ' + name;
+    }
 };
 
 /****** INSTRUCTIONS PROBLEM 1 ******/
@@ -15,11 +15,11 @@ closure over the name variable. Invoke outer saving the return value into
 another variable called 'inner'. */
 
 // Code Here
-
+var inner = outer();
 //Once you do that, invoke inner.
 
 //Code Here
-
+// inner();
 
 
 
@@ -34,12 +34,13 @@ another variable called 'inner'. */
 \******************************************************************************/
 
 
-var callFriend = function(){
-  var friend = 'Jake';
-  function callF(number){
-    return 'Calling ' + friend + ' at ' + number;
-  }
-  return callF;
+var callFriend = function() {
+    var friend = 'Jake';
+
+    function callF(number) {
+        return 'Calling ' + friend + ' at ' + number;
+    }
+    return callF;
 };
 
 /****** INSTRUCTIONS PROBLEM 2 ******/
@@ -47,8 +48,9 @@ var callFriend = function(){
 Create a makeCall function that when invoked logs 'Calling Jake at 435-215-9248'
 in your console. */
 
-  //Code Here
-
+//Code Here
+var makeCall = callFriend();
+makeCall("435-215-9248");
 
 
 
@@ -65,16 +67,22 @@ in your console. */
 /****** INSTRUCTIONS PROBLEM 3 ******/
 /* Write a function called makeCounter that makes the following code work
 properly. */
+function makeCounter() {
+    var start = 0;
 
-//Code Here
+    return function() {
+        start++;
+        return start;
+        // console.log(start);
+    }
+}
 
-//Uncomment this once you make your function
-//   var count = makeCounter();
-//   count(); // 1
-//   count(); // 2
-//   count(); // 3
-//   count(); // 4
-
+// Uncomment this once you make your function
+var count = makeCounter();
+count(1); // 1
+count(2); // 2
+count(3); // 3
+count(4); // 4
 
 
 
@@ -97,16 +105,24 @@ the module pattern to achieve this. */
 
 function counterFactory(value) {
 
-  // Code here.
+    // Code here.
+    return {
+        inc: function() {
+            value++;
+            console.log(value);
+            return value;
 
-
-  return {
-  }
+        },
+        dec: function() {
+            value--;
+            console.log(value);
+            return value;
+        }
+    }
 }
 
 
 counter = counterFactory(10);
-
 
 
 
@@ -124,20 +140,21 @@ counter = counterFactory(10);
 /* Inside the motivation function create another function called message that
 will return 'You're doing awesome, keep it up firstname lastname.' */
 
-function motivation(firstname, lastname){
+function motivation(firstname, lastname) {
 
-  var welcomeText = 'You\'re doing awesome, keep it up ';
+    var welcomeText = "You're doing awesome, keep it up ";
 
-  // code message function here.
+    // code message function here.
+    function message() {
+      return (welcomeText + firstname + " " + lastname + ".");
+    }
 
-
-  //Uncommment this to return the value of your invoked message function
-  //return message();
+    // Uncommment this to return the value of your invoked message function
+    return message();
 
 }
 
 motivation('Billy', 'Bob'); // 'Your doing awesome keep it up Billy Bob
-
 
 
 
@@ -157,28 +174,30 @@ invokes privateMethod. After you create the privateMethod. Invoke it by calling
 module.publicMethod(); outside the module scope */
 
 var module = (function() {
-  var person = {
-    name: "phillip",
-    age: 29,
-    location: 'Utah'
-  };
+    var person = {
+        name: "phillip",
+        age: 29,
+        location: 'Utah'
+    };
 
-  var privateMethod = function(){
-    return "Hi, I'm " + person.name + ", age " + person.age + " from " + person.location;
-  };
+    var privateMethod = function() {
+        return "Hi, I'm " + person.name + ", age " + person.age + " from " + person.location;
+    };
 
-  // Anything that is being returned is made public and can be invoked from
-	// outside our lexical scope
+    // Anything that is being returned is made public and can be invoked from
+    // outside our lexical scope
 
-  return {
-    // Code here.
-  };
+    return {
+        // Code here.
+        publicMethod: function() {
+          return privateMethod();
+        }
+    };
 
 })();
 
 // Uncomment this after you create your public method
-//   module.publicMethod();
-
+  module.publicMethod();
 
 
 
@@ -198,20 +217,29 @@ to 5. What we need to do is console.log(i) so that it logs ( 0 then 1 then 2
 then 3, etc). Run this code in your console to see what the output is. */
 
 // To make this code work you will need to create a new scope for every iteration.
-function timeOutCounter() {
-  for (var i = 0; i <= 5; i++) {
-    setTimeout(function() {
-      console.log(i);
-    }, i * 1000)
-  }
+// function timeOutCounter() {
+//     for (var i = 0; i <= 5; i++) { for loop has finished it's iteration before the setTimeout time has run.
+//         setTimeout(function() { console.log(i);  }, i * 1000) by the time the internal function has run,
+//     }                                                         the iteration above has already been completed for some time.
+//                                                                therefore, you get the end result, of "6"
+//     function newScope(i) {
+//         console.log(i)
+//     }
+// }
+// timeOutCounter();
 
-  function newScope(i) {
-    console.log(i)
-  }
+function timeOutCounter() {
+    for (var i = 0; i <= 5; i++) {  //for loop runs and completes, creating new functions that return each iteration every iteration
+        setTimeout(newScope(i), i * 1000) //set timeout runs, invoking newScope(i) after one second, which returns the current iteration
+    }
+
+    function newScope(i) {
+        return function() { //returns the iteration thats given to it
+        	console.log(i);
+        }
+    }
 }
 timeOutCounter();
-
-
 
 
 
@@ -222,8 +250,17 @@ timeOutCounter();
 
 var funcArray = [];
 
-/*
-  Make the following code work
+for (var i = 0; i <= 5; i++) {
+  funcArray.push(makingNew(i)); //funcArray pushes whats in between the parenthesis, makingNew function, passing it i.
+  }
+function makingNew(i) { //receives the value of i, which it gets its value from the current indeci of i in the for loop above
+  return function() { //function thats being returned and put into funcArray
+    return(i); //this is the value of that function
+  }
+}
+
+
+  // Make the following code work
 
   funcArray[0]() //0
   funcArray[1]() //1
@@ -232,5 +269,4 @@ var funcArray = [];
   funcArray[4]() //4
   funcArray[5]() //5
 
-  *Hint: Don't let this fool you. Break down what's really happening here.
-*/
+  // *Hint: Don't let this fool you. Break down what's really happening here.
